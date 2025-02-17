@@ -5,9 +5,11 @@ on:
 
 jobs:
   deploy:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:
+          - windows-latest
         python-version:
           - "3.12"
 
@@ -19,18 +21,22 @@ jobs:
         uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: .github/workflows/scripts/install_req_windows.bat
+
       - name: Setup msbuild
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.22.0
+      - name: Build wheels using cibuildwheel
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.arch }}
+          CIBW_BUILD_VERBOSITY: 1
+        with:
+          package-dir: .
+          output-dir: wheelhouse
+          config-file: "{package}/pyproject.toml"
 
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
