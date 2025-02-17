@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         target:
-          - [macos-13, manylinux_x86_64]
+          - [macos-13, macosx_x86_64]
           - [macos-14, macosx_arm64]
         python:
           - cp312
