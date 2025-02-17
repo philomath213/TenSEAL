@@ -12,7 +12,6 @@ jobs:
           - ubuntu-latest
         arch:
           - manylinux_x86_64
-          - manylinux_aarch64
         python:
           - cp312
 
@@ -25,7 +24,6 @@ jobs:
         uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
         env:
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
-          CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.arch }}
           CIBW_BUILD_VERBOSITY: 1
         with:
