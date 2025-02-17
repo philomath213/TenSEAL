@@ -5,33 +5,31 @@ on:
 
 jobs:
   deploy:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.target[0] }}
     strategy:
       matrix:
-        python-version:
-          - "3.12"
-        os:
-          - macos-13
-          - macos-14
+        target:
+          - [macos-13, manylinux_x86_64]
+          - [macos-14, macosx_arm64]
+        python:
+          - cp312
 
     steps:
-      - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: true
-      - name: Set up Python
-        uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+
+      - name: Build wheels using cibuildwheel
+        uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
+        env:
+          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.target[1] }}
+          CIBW_BUILD_VERBOSITY: 1
         with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: .github/workflows/scripts/install_req_macos.sh
+          package-dir: .
+          output-dir: wheelhouse
+          config-file: "{package}/pyproject.toml"
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.22.0
-
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
-
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
           path: ./wheelhouse/*.whl
