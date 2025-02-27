@@ -56,6 +56,6 @@ jobs:
 
       - name: Publish wheels to PyPI
         env:
-          user: ${{ secrets.PYPI_USERNAME }}
-          password: ${{ secrets.PYPI_PASSWORD }}
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: twine upload --repository testpypi --skip-existing --verbose wheelhouse/*.whl
