@@ -2,7 +2,6 @@ import pytest
 import tenseal as ts
 import numpy as np
 
-
 PLAIN_VEC = [[0], [-1], [1], [73, 81, 90], [-73, -81, -90]]
 PLAIN_EMPTY_VEC = [[]]
 COEFF_MOD_BIT_SIZES = [60, 40, 40, 60]

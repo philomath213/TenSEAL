@@ -8,7 +8,6 @@ from skimage.util.shape import view_as_windows
 
 import tenseal as ts
 
-
 SHAPES = [[1], [2], [10], [2, 2], [3, 5], [2, 3, 4], [2, 3, 4, 5], [2, 3, 4, 5, 6]]
 
 BROADCAST_SHAPES = [
@@ -260,7 +259,7 @@ def test_sum_batch(context, data, reshape_first, precision):
     ), "Something went wrong in memory."
 
 
-@pytest.mark.parametrize("data", [(ts.plain_tensor([i for i in range(8)], shape=[2, 2, 2]))])
+@pytest.mark.parametrize("data", [ts.plain_tensor([i for i in range(8)], shape=[2, 2, 2])])
 @pytest.mark.parametrize("batch", [True, False])
 def test_sum_fail(context, data, batch, precision):
     context.generate_galois_keys()

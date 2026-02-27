@@ -26,7 +26,7 @@ def test_evaluator_unary(scheme, ctx, left):
     evaluator, encryptor, decryptor, _ = helper_generate_evaluator(ctx)
 
     # unary in place
-    for (op, expected) in [
+    for op, expected in [
         (evaluator.negate_inplace, [-v for v in left]),
         (evaluator.square_inplace, [v * v for v in left]),
         (evaluator.mod_switch_to_next_inplace, left),
@@ -44,7 +44,7 @@ def test_evaluator_unary(scheme, ctx, left):
         is_close_enough(out[: len(left)], expected)
 
     # unary
-    for (op, expected) in [
+    for op, expected in [
         (evaluator.negate, [-v for v in left]),
         (evaluator.square, [v * v for v in left]),
         (evaluator.mod_switch_to_next, left),
@@ -86,7 +86,7 @@ def test_evaluator_binary(scheme, ctx, left, right):
     evaluator, encryptor, decryptor, _ = helper_generate_evaluator(ctx)
 
     # binary in place
-    for (op, expected) in [
+    for op, expected in [
         (evaluator.add_inplace, [left[idx] + right[idx] for idx in range(len(left))]),
         (evaluator.sub_inplace, [left[idx] - right[idx] for idx in range(len(left))]),
         (evaluator.multiply_inplace, [left[idx] * right[idx] for idx in range(len(left))]),
@@ -109,7 +109,7 @@ def test_evaluator_binary(scheme, ctx, left, right):
         is_close_enough(out[: len(left)], expected)
 
     # binary
-    for (op, expected) in [
+    for op, expected in [
         (evaluator.add, [left[idx] + right[idx] for idx in range(len(left))]),
         (evaluator.sub, [left[idx] - right[idx] for idx in range(len(left))]),
         (evaluator.multiply, [left[idx] * right[idx] for idx in range(len(left))]),
@@ -153,7 +153,7 @@ def test_evaluator_plain(scheme, ctx, left):
     evaluator, encryptor, decryptor, _ = helper_generate_evaluator(ctx)
 
     # plain op in place
-    for (op, plain, expected) in [
+    for op, plain, expected in [
         (evaluator.add_plain_inplace, [100] * len(left), [100 + v for v in left]),
         (evaluator.sub_plain_inplace, [5] * len(left), [v - 5 for v in left]),
         (evaluator.multiply_plain_inplace, [2] * len(left), [2 * v for v in left]),
@@ -173,7 +173,7 @@ def test_evaluator_plain(scheme, ctx, left):
         is_close_enough(out[: len(left)], expected)
 
     # plain op
-    for (op, plain, expected) in [
+    for op, plain, expected in [
         (evaluator.add_plain, [100] * len(left), [100 + v for v in left]),
         (evaluator.sub_plain, [5] * len(left), [v - 5 for v in left]),
         (evaluator.multiply_plain, [2] * len(left), [2 * v for v in left]),

@@ -1,5 +1,5 @@
-"""N-dimensonal tensor, serving as the main type to interact with encrypted tensors.
-"""
+"""N-dimensonal tensor, serving as the main type to interact with encrypted tensors."""
+
 from typing import List, Union
 import tenseal as ts
 import numpy as np
