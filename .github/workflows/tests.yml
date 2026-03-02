@@ -18,8 +18,8 @@ jobs:
         target:
           - [ubuntu-24.04, manylinux_x86_64, ""]
           - [windows-2025, win_amd64, ""]
-          - [macos-15-intel, macosx_x86_64, "15.0"]
-          - [macos-15, macosx_arm64, "15.0"]
+          - [macos-15-intel, macosx_x86_64, "14.0"]
+          - [macos-15, macosx_arm64, "14.0"]
         python:
           - cp314
     steps:
@@ -81,8 +81,8 @@ jobs:
         target:
           - [ubuntu-24.04, manylinux_x86_64, ""]
           - [windows-2025, win_amd64, ""]
-          - [macos-15-intel, macosx_x86_64, "15.0"]
-          - [macos-15, macosx_arm64, "15.0"]
+          - [macos-15-intel, macosx_x86_64, "14.0"]
+          - [macos-15, macosx_arm64, "14.0"]
         python:
           - cp314
     steps:
