@@ -6,7 +6,7 @@ set(Protobuf_MSVC_STATIC_RUNTIME OFF)
 FetchContent_Declare(
   protocolbuffers_protobuf
   GIT_REPOSITORY https://github.com/protocolbuffers/protobuf
-  GIT_TAG        v3.15.8
+  GIT_TAG        v3.21.12
 )
 FetchContent_MakeAvailable(protocolbuffers_protobuf)
 
