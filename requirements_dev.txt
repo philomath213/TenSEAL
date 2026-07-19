@@ -11,5 +11,5 @@ setuptools
 pygal
 pygaljs
 scikit-image
-torch
-torchvision
+torch; sys_platform != 'darwin' or platform_machine != 'x86_64'
+torchvision; sys_platform != 'darwin' or platform_machine != 'x86_64'
