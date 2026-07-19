@@ -3,12 +3,12 @@
 
 #include "gsl/span"
 #include "tenseal/cpp/utils/helpers.h"
-#include "xtensor/xadapt.hpp"
-#include "xtensor/xarray.hpp"
-#include "xtensor/xio.hpp"
-#include "xtensor/xjson.hpp"
-#include "xtensor/xstrided_view.hpp"
-#include "xtensor/xview.hpp"
+#include "xtensor/containers/xadapt.hpp"
+#include "xtensor/containers/xarray.hpp"
+#include "xtensor/io/xio.hpp"
+#include "xtensor/io/xjson.hpp"
+#include "xtensor/views/xstrided_view.hpp"
+#include "xtensor/views/xview.hpp"
 
 namespace tenseal {
 

@@ -13,17 +13,17 @@ FetchContent_Declare(
 FetchContent_Declare(
   com_xtensorstack_xtl
   GIT_REPOSITORY https://github.com/xtensor-stack/xtl
-  GIT_TAG        0.7.2
+  GIT_TAG        0.8.2
 )
 FetchContent_Declare(
   com_xtensorstack_xsimd
   GIT_REPOSITORY https://github.com/xtensor-stack/xsimd
-  GIT_TAG        7.4.10
+  GIT_TAG        14.3.0
 )
 FetchContent_Declare(
   com_xtensorstack_xtensor
   GIT_REPOSITORY https://github.com/xtensor-stack/xtensor
-  GIT_TAG        0.23.5
+  GIT_TAG        0.27.1
 )
 FetchContent_MakeAvailable(com_nlohmann_json com_xtensorstack_xtl com_xtensorstack_xsimd com_xtensorstack_xtensor)
 
