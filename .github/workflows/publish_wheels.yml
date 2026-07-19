@@ -3,6 +3,9 @@ name: Build and Publish
 on:
   workflow_dispatch:
 
+env:
+  CMAKE_VERSION: "3.31.11"
+
 jobs:
   publish:
     runs-on: ${{ matrix.target[0] }}
@@ -30,6 +33,35 @@ jobs:
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
         if: matrix.target[0] == 'windows-latest'
 
+      - name: Install cmake ${{ env.CMAKE_VERSION }} (macOS)
+        shell: bash
+        run: |
+          mkdir -p "$HOME/cmake-${{ env.CMAKE_VERSION }}"
+          curl -fsSL https://github.com/Kitware/CMake/releases/download/v${{ env.CMAKE_VERSION }}/cmake-${{ env.CMAKE_VERSION }}-macos-universal.tar.gz \
+            | tar -xz -C "$HOME/cmake-${{ env.CMAKE_VERSION }}" --strip-components=1
+          if [ -d "$HOME/cmake-${{ env.CMAKE_VERSION }}/CMake.app" ]; then
+            echo "$HOME/cmake-${{ env.CMAKE_VERSION }}/CMake.app/Contents/bin" >> $GITHUB_PATH
+          else
+            echo "$HOME/cmake-${{ env.CMAKE_VERSION }}/bin" >> $GITHUB_PATH
+          fi
+        if: startsWith(matrix.target[0], 'macos')
+
+      - name: Install cmake ${{ env.CMAKE_VERSION }} (Windows)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Kitware/CMake/releases/download/v${{ env.CMAKE_VERSION }}/cmake-${{ env.CMAKE_VERSION }}-windows-x86_64.zip" -OutFile "$env:TEMP\cmake.zip"
+          Expand-Archive -Path "$env:TEMP\cmake.zip" -DestinationPath "$env:TEMP\cmake" -Force
+          "$env:TEMP\cmake\cmake-${{ env.CMAKE_VERSION }}-windows-x86_64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        if: matrix.target[0] == 'windows-latest'
+
+      - name: Install cmake ${{ env.CMAKE_VERSION }} (Linux)
+        shell: bash
+        run: |
+          mkdir -p "${{ github.workspace }}/cmake-install"
+          curl -fsSL https://github.com/Kitware/CMake/releases/download/v${{ env.CMAKE_VERSION }}/cmake-${{ env.CMAKE_VERSION }}-linux-x86_64.tar.gz \
+            | tar -xz -C "${{ github.workspace }}/cmake-install" --strip-components=1
+        if: matrix.target[0] == 'ubuntu-latest'
+
       - name: Build wheels using cibuildwheel
         uses: pypa/cibuildwheel@ee63bf16da6cddfb925f542f2c7b59ad50e93969 # v2.22.0
         env:
@@ -37,6 +69,7 @@ jobs:
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.target[2] }}
           CIBW_BUILD: ${{ matrix.python }}-${{ matrix.target[1] }}
           CIBW_BUILD_VERBOSITY: 1
+          CIBW_ENVIRONMENT_LINUX: "PATH=/project/cmake-install/bin:$PATH"
         with:
           package-dir: .
           output-dir: wheelhouse
