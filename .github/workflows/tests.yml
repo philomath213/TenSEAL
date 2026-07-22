@@ -61,10 +61,10 @@ jobs:
           CIBW_TEST_COMMAND: 'pytest -m "not slow" -v {project}/tests/python/tenseal'
           CIBW_TEST_COMMAND_LINUX: >-
             pytest -m "not slow" -v {project}/tests/python/tenseal &&
-            sh -c "cd {project} && cmake . -D BUILD_TEST=TRUE && make -j && CTEST_OUTPUT_ON_FAILURE=1 make test"
+            sh -c "cd {project} && cmake . -D BUILD_TEST=TRUE && make -j2 && CTEST_OUTPUT_ON_FAILURE=1 make test"
           CIBW_TEST_COMMAND_MACOS: >-
             pytest -m "not slow" -v {project}/tests/python/tenseal &&
-            sh -c "cd {project} && cmake . -D BUILD_TEST=TRUE && make -j && CTEST_OUTPUT_ON_FAILURE=1 make test"
+            sh -c "cd {project} && cmake . -D BUILD_TEST=TRUE && make -j2 && CTEST_OUTPUT_ON_FAILURE=1 make test"
         with:
           package-dir: .
           output-dir: wheelhouse
