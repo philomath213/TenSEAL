@@ -6,6 +6,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+env:
+  # Let CMake 4.x configure the (old) vendored deps whose cmake_minimum_required
+  # floor is < 3.5 (protobuf 3.15.8, nlohmann/json 3.9.1). Read from the
+  # environment so it also applies to protobuf's nested cmake invocation.
+  CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+
 jobs:
   Linter:
     runs-on: ${{ matrix.os }}
