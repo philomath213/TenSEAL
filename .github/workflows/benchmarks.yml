@@ -7,9 +7,21 @@ jobs:
   benchmark:
     runs-on: ${{ matrix.os }}
     strategy:
+      # Without this, one platform failing cancels the others and hides their
+      # real status - which is exactly what happened on the last run.
+      fail-fast: false
       matrix:
         python-version: ["3.13"]
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        # Pinned, matching the Tests workflow. The *-latest images now ship
+        # CMake 4.x and AppleClang 21, neither of which the current
+        # protobuf/json/xtensor pins can build against.
+        os: [ubuntu-24.04, windows-2022, macos-14]
+
+    # Lets the runner's CMake 4.x accept the pre-3.5 cmake_minimum_required in
+    # protobuf 3.15.8 and nlohmann/json 3.9.1. Inherited by the nested cmake
+    # invocation that setup.py spawns.
+    env:
+      CMAKE_POLICY_VERSION_MINIMUM: "3.5"
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -21,25 +33,31 @@ jobs:
         run: |
           echo "CC=clang" >> $GITHUB_ENV
           echo "CXX=clang++" >> $GITHUB_ENV
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+      # Pin the macOS toolchain to Xcode 15.4 (AppleClang 15), the macos-14
+      # default, so an image bump cannot reintroduce the std::result_of /
+      # xtensor breakage that AppleClang 17+ triggers.
+      - name: Select Xcode 15.4 (macOS)
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+        if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Install dependencies Ubuntu
         run: .github/workflows/scripts/install_req_ubuntu.sh
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
       - name: Install dependencies MacOS
         run: .github/workflows/scripts/install_req_macos.sh
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
       - name: Install dependencies Windows
         run: .github/workflows/scripts/install_req_windows.bat
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Install dependencies Windows - msbuild
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Build the library for Ubuntu/MacOS
         run: .github/workflows/scripts/build_nix.sh
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ !startsWith(matrix.os, 'windows') }}
       - name: Build the library for Windows
         run: .github/workflows/scripts/build_windows.bat
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Run benchmarks
         run: |
           pytest tests/python/benchmarks/ --cov-fail-under 0 --benchmark-json pytest_benchmarks_output.json
