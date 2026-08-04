@@ -50,6 +50,13 @@ cmake . -D BUILD_TEST=TRUE && make -j && CTEST_OUTPUT_ON_FAILURE=1 make test
 - **`uv.lock` exists but nothing reads it.** The install scripts use
   `pip install --group dev`, which resolves fresh from `pyproject.toml`. Only
   `uv sync` / `uv export` consume the lock — `uv pip install` does not.
+- **`BFVVectorTest.TestBFVSerializationSize` is flaky.** In
+  `tests/cpp/tensors/bfvvector_test.cpp` (~line 293), the assertion
+  `2 * sym_buffer.size() > pk_buffer.size()` compares zstd-compressed sizes of
+  symmetric- vs asymmetric-encrypted vectors. Encryption is randomized, so the sizes
+  vary run to run and the margin is narrow. A single CI failure here is almost
+  certainly flakiness — re-run before investigating. A real fix would widen the margin
+  or make the check deterministic.
 - **Three CKKS tests never run.** In `tests/python/tenseal/tensors/test_serialization.py`,
   `test_add`/`test_sub`/`test_mul` (lines ~126/154/181) are shadowed by BFV
   redefinitions of the same name, so pytest only collects the second set. Suppressed
