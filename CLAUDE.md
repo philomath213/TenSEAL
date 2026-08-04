@@ -85,6 +85,9 @@ Each lives in its own `cmake/*.cmake` file. Current versus latest:
   Full procedure in `RELEASING.md` (lands upstream with #525).
 - **This is a fork.** Cut branches intended for upstream from `upstream/main`, not from
   this fork's `main`, or they will carry fork-only commits into the PR.
+- **Don't touch `docs/ROADMAP.md` until the change merges into `OpenMined/TenSEAL` main.**
+  An item moves to done when it lands upstream, not when it is written or a PR is opened,
+  so the roadmap never reads ahead of what actually shipped.
 
 ## Where things stand
 
