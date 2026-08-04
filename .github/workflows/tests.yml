@@ -73,7 +73,10 @@ jobs:
           CIBW_ENVIRONMENT: "CMAKE_POLICY_VERSION_MINIMUM=3.5"
           # Build every supported version; run the test suite on the latest only.
           CIBW_TEST_SKIP: "cp311-* cp312-* cp313-*"
-          CIBW_TEST_REQUIRES: "numpy pytest scikit-image"
+          # No numpy here on purpose: the wheel declares it, so installing the
+          # wheel must pull it in. Listing it would mask a missing declaration
+          # instead of testing it.
+          CIBW_TEST_REQUIRES: "pytest scikit-image"
           CIBW_TEST_COMMAND: >-
             pytest -m "not slow" -v {project}/tests/python/tenseal &&
             pytest -v {project}/tests/python/sealapi

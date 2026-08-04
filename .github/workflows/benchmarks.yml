@@ -17,18 +17,28 @@ jobs:
         # protobuf/json/xtensor pins can build against.
         os: [ubuntu-24.04, windows-2022, macos-14]
 
-    # Lets the runner's CMake 4.x accept the pre-3.5 cmake_minimum_required in
-    # protobuf 3.15.8 and nlohmann/json 3.9.1. Inherited by the nested cmake
-    # invocation that setup.py spawns.
     env:
+      # Lets the runner's CMake 4.x accept the pre-3.5 cmake_minimum_required in
+      # protobuf 3.15.8 and nlohmann/json 3.9.1. Inherited by the nested cmake
+      # invocation that setup.py spawns.
       CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+      # MT vs MD: static vs dynamic runtime library linking. Protobuf enforces
+      # /MT on its static .lib build, so everything linking it needs /MT too.
+      # Carried over from the build_windows.bat this workflow used to call; it
+      # is ignored by every non-MSVC compiler.
+      _CL_: ${{ startsWith(matrix.os, 'windows') && '/MT' || '' }}
 
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Set up Python ${{ matrix.python-version }}
+        id: python
         uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Set up uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
       - name: Prepare ENV
         run: |
           echo "CC=clang" >> $GITHUB_ENV
@@ -40,27 +50,33 @@ jobs:
       - name: Select Xcode 15.4 (macOS)
         run: sudo xcode-select -s /Applications/Xcode_15.4.app
         if: ${{ startsWith(matrix.os, 'macos') }}
-      - name: Install dependencies Ubuntu
-        run: .github/workflows/scripts/install_req_ubuntu.sh
+      - name: Install the build toolchain (Ubuntu)
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y curl git build-essential cmake automake libtool libtool-bin clang
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-      - name: Install dependencies MacOS
-        run: .github/workflows/scripts/install_req_macos.sh
-        if: ${{ startsWith(matrix.os, 'macos') }}
-      - name: Install dependencies Windows
-        run: .github/workflows/scripts/install_req_windows.bat
-        if: ${{ startsWith(matrix.os, 'windows') }}
       - name: Install dependencies Windows - msbuild
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
         if: ${{ startsWith(matrix.os, 'windows') }}
-      - name: Build the library for Ubuntu/MacOS
-        run: .github/workflows/scripts/build_nix.sh
-        if: ${{ !startsWith(matrix.os, 'windows') }}
-      - name: Build the library for Windows
-        run: .github/workflows/scripts/build_windows.bat
+      # cmake/protobuf.cmake runs `--target install` on Windows only, which drops
+      # protoc under Program Files. Also carried over from build_windows.bat.
+      - name: Put the installed protoc on PATH (Windows)
+        shell: pwsh
+        run: |
+          "$env:ProgramFiles\protobuf\bin" >> $env:GITHUB_PATH
+          "${env:ProgramFiles(x86)}\protobuf\bin" >> $env:GITHUB_PATH
         if: ${{ startsWith(matrix.os, 'windows') }}
+      # One cross-platform step replaces install_req_{ubuntu,macos,windows} and
+      # build_{nix,windows}: `uv sync` installs the dev group *and* the project,
+      # so this both resolves dependencies and compiles the C++ extension.
+      # `--frozen` installs exactly what uv.lock pins instead of re-resolving
+      # from pyproject.toml, which is the whole point of committing the lock.
+      # `--no-editable` builds and installs the project the way a user would.
+      - name: Install dependencies and build the library
+        run: uv sync --frozen --group dev --no-editable --python "${{ steps.python.outputs.python-path }}"
       - name: Run benchmarks
         run: |
-          pytest tests/python/benchmarks/ --cov-fail-under 0 --benchmark-json pytest_benchmarks_output.json
+          uv run --no-sync pytest tests/python/benchmarks/ --cov-fail-under 0 --benchmark-json pytest_benchmarks_output.json
       # Benchmark history is appended to the repository's gh-pages branch, which
       # forks do not get - a fork only receives the default branch - so this step
       # fails there with "couldn't find remote ref gh-pages" even when the build
