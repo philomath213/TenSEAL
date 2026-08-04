@@ -101,6 +101,43 @@ Prebuilt wheels are published for every supported Python version on:
 
 A source distribution is published as well, so `pip install tenseal` also works on platforms without a prebuilt wheel — it will compile from source, which needs the build requirements listed below. If your platform is missing a wheel you would like us to publish, please open an [issue](https://github.com/OpenMined/TenSEAL/issues).
 
+To check that the installation worked:
+
+```python
+import tenseal as ts
+print(ts.__version__)
+```
+
+#### Using a specific Python version
+
+If your Python is older than 3.11, or you would rather leave your system Python alone, [uv](https://docs.astral.sh/uv/getting-started/installation/) can download a Python for you and keep TenSEAL in its own environment.
+
+Create an environment and install into it:
+
+```bash
+uv venv --python 3.13
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+uv pip install tenseal
+```
+
+Or start a one-off Python session without setting anything up — uv fetches Python 3.13 and TenSEAL, and discards the environment afterwards:
+
+```bash
+uv run --python 3.13 --with tenseal python
+```
+
+Replace `3.13` with any version from 3.11 to 3.14.
+
+#### Using conda
+
+TenSEAL is not published on conda-forge, so install it with pip inside the environment:
+
+```bash
+conda create -n tenseal python=3.13
+conda activate tenseal
+pip install tenseal
+```
+
 #### Build from Source
 
 Building requires a C++17 toolchain and [CMake](https://cmake.org/install/) 3.14 or newer:
